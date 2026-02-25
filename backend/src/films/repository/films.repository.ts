@@ -81,7 +81,7 @@ export class FilmsRepository {
     return {
       id: item.id,
       daytime: item.daytime,
-      hall: String(item.hall),
+      hall: typeof item.hall === 'number' ? item.hall : Number(item.hall) || 0,
       rows: item.rows,
       seats: item.seats,
       price: item.price,
