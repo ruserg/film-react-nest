@@ -6,16 +6,16 @@ export class ScheduleEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column()
+  @Column('varchar')
   daytime: string;
 
-  @Column()
+  @Column('int')
   hall: number;
 
-  @Column()
+  @Column('int')
   rows: number;
 
-  @Column()
+  @Column('int')
   seats: number;
 
   @Column('decimal', { precision: 10, scale: 2 })

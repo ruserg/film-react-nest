@@ -9,25 +9,25 @@ export class FilmEntity {
   @Column('decimal', { precision: 4, scale: 1, nullable: true })
   rating: number | null;
 
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   director: string | null;
 
   @Column('text', { array: true, default: [] })
   tags: string[];
 
-  @Column()
+  @Column('varchar')
   title: string;
 
-  @Column({ nullable: true })
+  @Column('text', { nullable: true })
   about: string | null;
 
-  @Column({ nullable: true })
+  @Column('text', { nullable: true })
   description: string | null;
 
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   image: string | null;
 
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   cover: string | null;
 
   @OneToMany(() => ScheduleEntity, (schedule) => schedule.film, {
