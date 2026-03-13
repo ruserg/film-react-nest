@@ -1,71 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Film, FilmDocument } from '../schemas/film.schema';
 import { FilmDto, ScheduleItemDto } from '../dto/films.dto';
 
-@Injectable()
-export class FilmsRepository {
-  constructor(
-    @InjectModel(Film.name) private readonly filmModel: Model<FilmDocument>,
-  ) {}
+export interface FilmWithSchedule {
+  id: string;
+  rating?: number | null;
+  director?: string | null;
+  tags?: string[];
+  title: string;
+  about?: string | null;
+  description?: string | null;
+  image?: string | null;
+  cover?: string | null;
+  schedule: Array<{
+    id: string;
+    daytime: string;
+    hall: string | number;
+    rows: number;
+    seats: number;
+    price: number;
+    taken?: string[];
+  }>;
+}
 
-  async findAll(): Promise<FilmDocument[]> {
-    return this.filmModel.find().lean().exec();
-  }
-
-  async findById(id: string): Promise<FilmDocument | null> {
-    return this.filmModel.findOne({ id }).lean().exec();
-  }
-
-  async findByIdForUpdate(id: string): Promise<FilmDocument | null> {
-    return this.filmModel.findOne({ id }).exec();
-  }
-
-  /** Добавить занятые места в сеанс. Возвращает обновлённый документ или null. */
-  async addTakenToSession(
+export abstract class FilmsRepository {
+  abstract findAll(): Promise<FilmWithSchedule[]>;
+  abstract findById(id: string): Promise<FilmWithSchedule | null>;
+  abstract addTakenToSession(
     filmId: string,
     sessionId: string,
     takenKeys: string[],
-  ): Promise<FilmDocument | null> {
-    const doc = await this.filmModel.findOne({ id: filmId }).exec();
-    if (!doc) return null;
-    const session = doc.schedule.find((s) => s.id === sessionId);
-    if (!session) return null;
-    const existing = new Set(session.taken);
-    for (const key of takenKeys) {
-      existing.add(key);
-    }
-    session.taken = Array.from(existing);
-    doc.markModified('schedule');
-    await doc.save();
-    return doc;
-  }
+  ): Promise<FilmWithSchedule | null>;
 
-  toFilmDto(
-    doc: FilmDocument | { id: string; [key: string]: unknown },
-  ): FilmDto {
-    const d = doc as {
-      id: string;
-      rating?: number;
-      director?: string;
-      tags?: string[];
-      title: string;
-      about?: string;
-      description?: string;
-      image?: string;
-      cover?: string;
-    };
+  toFilmDto(doc: FilmWithSchedule): FilmDto {
     return {
-      id: d.id,
-      rating: d.rating,
-      director: d.director,
-      tags: d.tags ?? [],
-      title: d.title,
-      about: d.about,
-      description: d.description,
-      image: d.image,
-      cover: d.cover,
+      id: doc.id,
+      rating: doc.rating ?? undefined,
+      director: doc.director ?? undefined,
+      tags: doc.tags ?? [],
+      title: doc.title,
+      about: doc.about ?? undefined,
+      description: doc.description ?? undefined,
+      image: doc.image ?? undefined,
+      cover: doc.cover ?? undefined,
     };
   }
 
