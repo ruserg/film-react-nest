@@ -70,7 +70,7 @@ npm test
 
 ## Публикация образов в GHCR
 
-[`.github/workflows/docker-images.yml`](.github/workflows/docker-images.yml) — при push в **`main`** и **`review-2`**:
+[`.github/workflows/docker-images.yml`](.github/workflows/docker-images.yml) — при push в **`main`** и **`review-3`**:
 
 - `ghcr.io/<владелец_репо_в_нижнем_регистре>/film-react-nest-backend`
 - `.../film-react-nest-frontend-builder`
