@@ -6,6 +6,7 @@ import {
   IsNumber,
   ValidateNested,
   Min,
+  IsISO8601,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -17,7 +18,7 @@ export class TicketDto {
   @IsUUID()
   session: string;
 
-  @IsString()
+  @IsISO8601()
   daytime: string;
 
   @IsNumber()

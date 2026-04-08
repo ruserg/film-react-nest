@@ -28,6 +28,23 @@ export class OrderService {
       if (!session) {
         throw new BadRequestException({ error: 'Session not found' });
       }
+      const sessionTime = new Date(session.daytime).getTime();
+      const ticketTime = new Date(ticket.daytime).getTime();
+      if (
+        Number.isNaN(sessionTime) ||
+        Number.isNaN(ticketTime) ||
+        sessionTime !== ticketTime
+      ) {
+        throw new BadRequestException({
+          error: 'Ticket daytime does not match the session',
+        });
+      }
+      const sessionPrice = Number(session.price);
+      if (Number(ticket.price) !== sessionPrice) {
+        throw new BadRequestException({
+          error: `Ticket price must match session price (${sessionPrice})`,
+        });
+      }
       const rows = session.rows ?? 0;
       const seats = session.seats ?? 0;
       if (

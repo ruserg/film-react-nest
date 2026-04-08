@@ -56,10 +56,10 @@ export abstract class FilmsRepository {
     return {
       id: item.id,
       daytime: item.daytime,
-      hall: typeof item.hall === 'number' ? item.hall : Number(item.hall) || 0,
+      hall: typeof item.hall === 'string' ? item.hall : String(item.hall ?? ''),
       rows: item.rows,
       seats: item.seats,
-      price: item.price,
+      price: Number(item.price),
       taken: item.taken ?? [],
     };
   }

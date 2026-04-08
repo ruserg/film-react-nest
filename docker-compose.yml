@@ -1,0 +1,94 @@
+services:
+  frontend-builder:
+    image: ghcr.io/${GHCR_OWNER:-ruserg}/film-react-nest-frontend-builder:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost/api/afisha}
+        VITE_CDN_URL: ${VITE_CDN_URL:-http://localhost/content/afisha}
+    volumes:
+      - frontend_dist:/output
+    networks:
+      - app_net
+    restart: "no"
+    env_file:
+      - ./.env
+
+  backend:
+    image: ghcr.io/${GHCR_OWNER:-ruserg}/film-react-nest-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      DATABASE_DRIVER: postgres
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER:-ruserg}/film-react-nest-nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      frontend-builder:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+    ports:
+      - "80:80"
+    volumes:
+      - frontend_dist:/usr/share/nginx/html:ro
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  database:
+    image: postgres:16-alpine
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U student -d film"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/test/prac.init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./backend/test/prac.films.sql:/docker-entrypoint-initdb.d/02-films.sql:ro
+      - ./backend/test/prac.schedules.sql:/docker-entrypoint-initdb.d/03-schedules.sql:ro
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    env_file:
+      - ./.env
+    environment:
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - app_net
+    restart: unless-stopped
+
+networks:
+  app_net:
+    driver: bridge
+
+volumes:
+  frontend_dist:
+  postgres_data:
+  pgadmin_data:

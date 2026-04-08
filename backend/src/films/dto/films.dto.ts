@@ -11,11 +11,11 @@ export class FilmDto {
   cover?: string;
 }
 
-/** Элемент расписания (схема Shedule в film.yml) */
+/** Элемент расписания (схема Shedule в film.yml; hall — string, см. OpenAPI) */
 export class ScheduleItemDto {
   id: string;
   daytime: string;
-  hall: number;
+  hall: string;
   rows: number;
   seats: number;
   price: number;
