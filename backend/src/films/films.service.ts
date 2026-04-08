@@ -19,10 +19,7 @@ export class FilmsService {
     }
     const schedule = doc.schedule ?? [];
     const items = schedule.map((s) =>
-      this.filmsRepository.toScheduleItemDto({
-        ...s,
-        hall: String(s.hall),
-      }),
+      this.filmsRepository.toScheduleItemDto(s),
     );
     return { total: items.length, items };
   }
